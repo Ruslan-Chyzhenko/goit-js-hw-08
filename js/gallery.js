@@ -100,21 +100,50 @@ images.forEach(image => {
   galleryContainer.appendChild(galleryItem);
 });
 
+// Function to close the modal on ESC key press
+function closeModalOnEsc(event) {
+  if (event.key === 'Escape') {
+    basicLightbox.close();
+  }
+}
+
 // Add event listener for clicks on gallery items
 galleryContainer.addEventListener('click', function(event) {
   // Check if the clicked element has the class gallery-image
   if (event.target.classList.contains('gallery-image')) {
     // Get the source of the clicked image
-      const largeImageSrc = event.target.dataset.source;
+    const largeImageSrc = event.target.dataset.source;
 
     // Open a basicLightbox modal with the large image
-      const modal = basicLightbox.create(`<img src="${largeImageSrc}" alt="Large Image">`);
+const modalInstance = basicLightbox.create(`<img src="${largeImageSrc}" alt="Large Image">`, {
+  onShow: (instance) => {
+    // Add event listener for closing the modal on ESC key press
+    const closeModalOnEsc = (event) => {
+      if (event.key === 'Escape') {
+        modalInstance.close();
+      }
+    };
+    window.addEventListener('keydown', closeModalOnEsc);
 
-    // Show the modal
-    modal.show();
+    // Prevent scrolling background when modal is open
+    document.body.style.overflow = 'hidden';
+  },
+  onClose: (instance) => {
+    // Remove event listener for closing the modal on ESC key press
+    const closeModalOnEsc = (event) => {
+      if (event.key === 'Escape') {
+        modalInstance.close();
+      }
+    };
+    window.removeEventListener('keydown', closeModalOnEsc);
 
-    // Log the source to the console (you can replace this with your desired functionality)
-    console.log('Large Image Source:', largeImageSrc);
-  }
+    // Allow scrolling background when modal is closed
+    document.body.style.overflow = 'auto';
+  },
+});
+
+// Show the modal
+    modalInstance.show();
+    }
 });
 
