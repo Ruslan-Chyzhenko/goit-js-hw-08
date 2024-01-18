@@ -64,86 +64,58 @@ const images = [
   },
 ];
 
-// Get the gallery container
-const galleryContainer = document.querySelector('.gallery');
+// Function to create an image element with specified attributes
+function createGalleryImage(image) {
+  const galleryImage = document.createElement('img');
+  galleryImage.classList.add('gallery-image');
+  Object.assign(galleryImage, {
+    src: image.preview,
+    alt: image.description,
+    'data-source': image.original,
+  });
+  return galleryImage;
+}
 
-// Iterate over each object in the array and create markup
-images.forEach(image => {
-  // Create a new li element with the class gallery-item
-  const galleryItem = document.createElement('li');
-  galleryItem.classList.add('gallery-item');
-
-  // Create a link with the class gallery-link and set the href attribute
+// Function to create a link element with specified attributes
+function createGalleryLink(image) {
   const galleryLink = document.createElement('a');
   galleryLink.classList.add('gallery-link');
   galleryLink.href = image.original;
-
-  // Prevent automatic image loading on click
-  galleryLink.addEventListener('click', function(event) {
-    event.preventDefault();
-  });
-
-  // Create an image with the class gallery-image and set src, alt, and data-source attributes
-  const galleryImage = document.createElement('img');
-  galleryImage.classList.add('gallery-image');
-  galleryImage.src = image.preview;
-  galleryImage.alt = image.description;
-  galleryImage.setAttribute('data-source', image.original);
-
-  // Append the image inside the link
-  galleryLink.appendChild(galleryImage);
-
-  // Append the link inside the li element
-  galleryItem.appendChild(galleryLink);
-
-  // Append the li element inside the ul.gallery
-  galleryContainer.appendChild(galleryItem);
-});
-
-// Function to close the modal on ESC key press
-function closeModalOnEsc(event) {
-  if (event.key === 'Escape') {
-    basicLightbox.close();
-  }
+  return galleryLink;
 }
 
+// Get the gallery container
+const galleryContainer = document.querySelector('.gallery');
+
 // Add event listener for clicks on gallery items
-galleryContainer.addEventListener('click', function(event) {
-  // Check if the clicked element has the class gallery-image
+galleryContainer.addEventListener('click', function (event) {
   if (event.target.classList.contains('gallery-image')) {
-    // Get the source of the clicked image
     const largeImageSrc = event.target.dataset.source;
 
-    // Open a basicLightbox modal with the large image
-const modalInstance = basicLightbox.create(`<img src="${largeImageSrc}" alt="Large Image">`, {
-  onShow: (instance) => {
-    // Add event listener for closing the modal on ESC key press
-    const closeModalOnEsc = (event) => {
-      if (event.key === 'Escape') {
-        modalInstance.close();
-      }
-    };
-    window.addEventListener('keydown', closeModalOnEsc);
+    const modalInstance = basicLightbox.create(`<img src="${largeImageSrc}" alt="Large Image">`, {
+      onShow: (instance) => {
+        window.addEventListener('keydown', closeModalOnEsc);
+        document.body.style.overflow = 'hidden';
+      },
+      onClose: (instance) => {
+        window.removeEventListener('keydown', closeModalOnEsc);
+        document.body.style.overflow = 'auto';
+      },
+    });
 
-    // Prevent scrolling background when modal is open
-    document.body.style.overflow = 'hidden';
-  },
-  onClose: (instance) => {
-    // Remove event listener for closing the modal on ESC key press
-    const closeModalOnEsc = (event) => {
-      if (event.key === 'Escape') {
-        modalInstance.close();
-      }
-    };
-    window.removeEventListener('keydown', closeModalOnEsc);
-
-    // Allow scrolling background when modal is closed
-    document.body.style.overflow = 'auto';
-  },
-});
-
-// Show the modal
     modalInstance.show();
-    }
+  }
 });
 
+// Iterate over each object in the array and create markup
+images.forEach((image) => {
+  const galleryItem = document.createElement('li');
+  galleryItem.classList.add('gallery-item');
+
+  const galleryLink = createGalleryLink(image);
+  const galleryImage = createGalleryImage(image);
+
+  galleryLink.appendChild(galleryImage);
+  galleryItem.appendChild(galleryLink);
+  galleryContainer.appendChild(galleryItem);
+});
