@@ -84,15 +84,27 @@ function createGalleryLink(image) {
   return galleryLink;
 }
 
+// Function to close the modal on ESC key press
+function closeModalOnEsc(event) {
+  if (event.key === 'Escape' && modalInstance) {
+    modalInstance.close();
+  }
+}
+
 // Get the gallery container
 const galleryContainer = document.querySelector('.gallery');
+let modalInstance; // Variable to store a reference to modalInstance
 
 // Add event listener for clicks on gallery items
 galleryContainer.addEventListener('click', function (event) {
-  if (event.target.classList.contains('gallery-image')) {
-    const largeImageSrc = event.target.dataset.source;
+  const clickedElement = event.target;
 
-    const modalInstance = basicLightbox.create(`<img src="${largeImageSrc}" alt="Large Image">`, {
+  if (clickedElement.classList.contains('gallery-image')) {
+    event.preventDefault(); // Prevent default behavior (e.g., opening the link)
+
+    const largeImageSrc = clickedElement.dataset.source;
+
+    modalInstance = basicLightbox.create(`<img src="${largeImageSrc}" alt="Large Image">`, {
       onShow: (instance) => {
         window.addEventListener('keydown', closeModalOnEsc);
         document.body.style.overflow = 'hidden';
@@ -108,7 +120,7 @@ galleryContainer.addEventListener('click', function (event) {
 });
 
 // Iterate over each object in the array and create markup
-images.forEach((image) => {
+const galleryItems = images.map((image) => {
   const galleryItem = document.createElement('li');
   galleryItem.classList.add('gallery-item');
 
@@ -117,5 +129,9 @@ images.forEach((image) => {
 
   galleryLink.appendChild(galleryImage);
   galleryItem.appendChild(galleryLink);
-  galleryContainer.appendChild(galleryItem);
+
+  return galleryItem;
 });
+
+// Append all gallery items to galleryContainer in one operation
+galleryContainer.append(...galleryItems);
